@@ -1715,8 +1715,8 @@ class FRSkySPort(FRSky):
             if not self.connect():
                 self.progress("Failed to connect")
                 return
-        self.do_sport_read()
         self.check_poll()
+        self.do_sport_read()
 
     def do_sport_read(self):
         self.buffer += self.do_read()
@@ -5279,12 +5279,11 @@ class TestSuite(ABC):
                                                   ):
         '''returns a list of mission-item-ints from filepath'''
         # self.progress("filepath: %s" % filepath)
+        self.progress("Loading {loaderclass.itemstype()} (%s)" % os.path.basename(filepath))
         wploader = loaderclass(
             target_system=target_system,
             target_component=target_component
         )
-        itemstype = mavutil.mavlink.enums["MAV_MISSION_TYPE"][wploader.mav_mission_type()]
-        self.progress(f"Loading {itemstype} ({os.path.basename(filepath)}")
         wploader.load(filepath)
         return [self.wp_to_mission_item_int(x, wploader.mav_mission_type()) for x in wploader.wpoints]  # noqa:502
 
@@ -8493,8 +8492,10 @@ Also, ignores heartbeats not from our target system'''
         self.progress("Waiting for EKF not having bits %u" % not_required_value)
         last_print_time = 0
         while timeout is None or self.get_sim_time_cached() < tstart + timeout:
-            esr = self.assert_receive_message('EKF_STATUS_REPORT', timeout=timeout)
-            current = esr.flags
+            m = self.mav.recv_match(type='EKF_STATUS_REPORT', blocking=True, timeout=timeout)
+            if m is None:
+                continue
+            current = m.flags
             if self.get_sim_time_cached() - last_print_time > 1:
                 self.progress("Wait EKF.flags: not required:%u current:%u" %
                               (not_required_value, current))
@@ -8502,7 +8503,6 @@ Also, ignores heartbeats not from our target system'''
             if current & not_required_value != not_required_value:
                 self.progress("GPS disable OK")
                 return
-        self.progress(f"Last EKF_STATUS_REPORT: {esr}")
         raise AutoTestTimeoutException("Failed to get EKF.flags=%u disabled" % not_required_value)
 
     def wait_text(self, *args, **kwargs):
@@ -13738,11 +13738,8 @@ switch value'''
 
     def FRSkySPort(self):
         '''Test FrSky SPort mode'''
-        self.set_parameters({
-            "SERIAL5_PROTOCOL": 4, # serial5 is FRSky sport
-            "RPM1_TYPE": 10, # enable SITL RPM sensor
-            "GPS1_TYPE": 100,  # use simulated backend for consistent position
-        })
+        self.set_parameter("SERIAL5_PROTOCOL", 4) # serial5 is FRSky sport
+        self.set_parameter("RPM1_TYPE", 10) # enable SITL RPM sensor
         port = self.spare_network_port()
         self.customise_SITL_commandline([
             "--serial5=tcp:%u" % port # serial5 spews to localhost port

@@ -1374,10 +1374,7 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
 
         # cut motor 1's to efficiency
         self.progress("Cutting motor 1 to 65% efficiency")
-        self.set_parameters({
-            "SIM_ENGINE_MUL": 0.65,
-            "SIM_ENGINE_FAIL": 1 << 0, # motor 1
-        })
+        self.set_parameter("SIM_ENGINE_MUL", 0.65)
 
         while self.get_sim_time_cached() < tstart + holdtime:
             m = self.mav.recv_match(type='VFR_HUD', blocking=True)
@@ -1722,6 +1719,8 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
     # Also check that the vehicle will not try and ascend too fast when trying to backup from a min alt fence due to avoidance
     def MinAltFenceAvoid(self):
         '''Test Min Alt Fence Avoidance'''
+        self.takeoff(30, mode="LOITER")
+        """Hold loiter position."""
 
         # enable fence, only min altitude
         # No action, rely on avoidance to prevent the breach
@@ -1731,10 +1730,6 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
             "FENCE_ALT_MIN": 20,
             "FENCE_ACTION": 0,
         })
-        self.reboot_sitl()
-
-        self.takeoff(30, mode="LOITER")
-        """Hold loiter position."""
 
         # Try and fly past the fence
         self.set_rc(3, 1120)
@@ -3288,8 +3283,8 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
                 self.progress("Killing motor %u (%u%%)" %
                               (fail_servo+1, fail_mul))
                 self.set_parameters({
+                    "SIM_ENGINE_FAIL": fail_servo,
                     "SIM_ENGINE_MUL": fail_mul,
-                    "SIM_ENGINE_FAIL": 1 << fail_servo,
                 })
                 failed = True
 
@@ -3348,7 +3343,10 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
                 raise NotAchievedException("Vehicle is descending")
 
         self.progress("Fixing motors")
-        self.set_parameter("SIM_ENGINE_FAIL", 0)
+        self.set_parameters({
+            "SIM_ENGINE_FAIL": 0,
+            "SIM_ENGINE_MUL": 1.0,
+        })
 
         self.do_RTL()
 
@@ -4170,7 +4168,8 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
         self.takeoff(40)
         self.set_rc(9, 1500)
         self.set_parameters({
-            "SIM_ENGINE_FAIL": 1 << 1, # motor 2
+            "SIM_ENGINE_MUL": 0,
+            "SIM_ENGINE_FAIL": 1,
         })
         self.wait_statustext('BANG! Parachute deployed', timeout=60)
         self.set_rc(9, 1000)
@@ -4183,7 +4182,8 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
         self.takeoff(loiter_alt, mode='LOITER')
         self.set_rc(9, 1100)
         self.set_parameters({
-            "SIM_ENGINE_FAIL": 1 << 1, # motor 2
+            "SIM_ENGINE_MUL": 0,
+            "SIM_ENGINE_FAIL": 1,
         })
         tstart = self.get_sim_time()
         while self.get_sim_time_cached() < tstart + 5:
@@ -9462,6 +9462,9 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
                 self.progress("Actually, no I'm not - it is an external simulation")
                 continue
             model = frame_bits.get("model", frame)
+            # the model string for Callisto has crap in it.... we
+            # should really have another entry in the vehicleinfo data
+            # to carry the path to the JSON.
             defaults = self.model_defaults_filepath(frame)
             if not isinstance(defaults, list):
                 defaults = [defaults]
@@ -9975,15 +9978,6 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
         self.change_mode('SMART_RTL')
         self.change_mode('ALT_HOLD')
         self.change_mode('SMART_RTL')
-
-    def SMART_RTL_Repeat(self):
-        '''Test whether Smart RTL catches the repeat'''
-        self.takeoff(alt_min=10, mode='GUIDED')
-        self.set_rc(3, 1500)
-        self.change_mode("CIRCLE")
-        self.delay_sim_time(1300)
-        self.change_mode("SMART_RTL")
-        self.wait_disarmed()
 
     def GPSForYawCompassLearn(self):
         '''Moving baseline GPS yaw - with compass learning'''
@@ -12028,8 +12022,8 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
         self.context_push()
         self.context_collect('STATUSTEXT')
         self.set_parameters({
+            "SIM_ENGINE_FAIL": 1,
             "SIM_ENGINE_MUL": 0.5,
-            "SIM_ENGINE_FAIL": 1 << 1, # motor 2
             "FLIGHT_OPTIONS": 4,
         })
 
@@ -12281,57 +12275,6 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
         # restart GPS driver
         self.reboot_sitl()
 
-    def ScriptingFlipMode(self):
-        '''test adding custom mode from scripting'''
-        # Really it would be nice to check for the AVAILABLE_MODES message, but pymavlink does not understand them yet.
-
-        # enable scripting and install flip script
-        self.set_parameters({
-            "SCR_ENABLE": 1,
-        })
-        self.install_example_script_context('Flip_Mode.lua')
-        self.reboot_sitl()
-
-        # Takeoff in loiter
-        self.takeoff(10, mode="LOITER")
-
-        # Try and switch to flip, should not be posible from loiter
-        try:
-            self.change_mode(100, timeout=10)
-        except AutoTestTimeoutException:
-            self.progress("PASS not able to enter from loiter")
-
-        # Should be alowd to enter from alt hold
-        self.change_mode("ALT_HOLD")
-        self.change_mode(100)
-
-        # Should return to previous mode after flipping
-        self.wait_mode("ALT_HOLD")
-
-        # Test done
-        self.land_and_disarm()
-
-    def RTLYaw(self):
-        '''test that vehicle yaws to original heading on RTL'''
-        # 0 is WP_YAW_BEHAVIOR_NONE
-        # 1 is WP_YAW_BEHAVIOR_LOOK_AT_NEXT_WP
-        # 2 is WP_YAW_BEHAVIOR_LOOK_AT_NEXT_WP_EXCEPT_RTL
-        # 3 is WP_YAW_BEHAVIOR_LOOK_AHEAD
-        for behaviour in 1, 3:
-            self.set_parameters({
-                'WP_YAW_BEHAVIOR': behaviour,
-            })
-            self.change_mode('GUIDED')
-            original_heading = self.get_heading()
-            target_heading = 100
-            if original_heading - target_heading < 90:
-                raise NotAchievedException("Bad initial heading")
-            self.takeoff(10, mode='GUIDED')
-            self.guided_achieve_heading(target_heading)
-            self.change_mode('RTL')
-            self.wait_heading(original_heading)
-            self.wait_disarmed()
-
     def tests2b(self):  # this block currently around 9.5mins here
         '''return list of all tests'''
         ret = ([
@@ -12359,9 +12302,7 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
             self.AP_Avoidance,
             self.SMART_RTL,
             self.SMART_RTL_EnterLeave,
-            self.SMART_RTL_Repeat,
             self.RTL_TO_RALLY,
-            self.RTLYaw,
             self.FlyEachFrame,
             self.GPSBlending,
             self.GPSWeightedBlending,
@@ -12441,7 +12382,6 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
             self.ScriptingAHRSSource,
             self.CommonOrigin,
             self.TestTetherStuck,
-            self.ScriptingFlipMode,
         ])
         return ret
 
@@ -12524,7 +12464,6 @@ class AutoTestCopter(vehicle_test_suite.TestSuite):
             "GPSForYawCompassLearn": "Vehicle currently crashed in spectacular fashion",
             "CompassMot": "Cuases an arithmetic exception in the EKF",
             "SMART_RTL_EnterLeave": "Causes a panic",
-            "SMART_RTL_Repeat": "Currently fails due to issue with loop detection",
         }
 
 

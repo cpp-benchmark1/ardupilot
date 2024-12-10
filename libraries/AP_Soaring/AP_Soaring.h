@@ -9,7 +9,12 @@
 
 #pragma once
 
-#include "AP_Soaring_config.h"
+#include <AP_HAL/AP_HAL_Boards.h>
+
+#ifndef HAL_SOARING_ENABLED
+#define HAL_SOARING_ENABLED 1
+#endif
+
 #if HAL_SOARING_ENABLED
 
 #include <AP_Param/AP_Param.h>

@@ -55,7 +55,10 @@ extern mavlink_system_t mavlink_system;
 /// @param chan		Channel to send to
 static inline bool valid_channel(mavlink_channel_t chan)
 {
-    return static_cast<int>(chan) < MAVLINK_COMM_NUM_BUFFERS;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
+    return chan < MAVLINK_COMM_NUM_BUFFERS;
+#pragma clang diagnostic pop
 }
 
 mavlink_message_t* mavlink_get_channel_buffer(uint8_t chan);

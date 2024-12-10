@@ -182,11 +182,7 @@ void AP_Networking_CAN::mcast_server(void)
             const uint16_t timeout_us = 2000;
 
             while (frame_buffers[bus]->peek(frame)) {
-                auto *cbus = get_caniface(bus);
-                if (cbus == nullptr) {
-                    break;
-                }
-                auto retcode = cbus->send(frame,
+                auto retcode = get_caniface(bus)->send(frame,
                                                       AP_HAL::micros64() + timeout_us,
                                                       AP_HAL::CANIface::IsMAVCAN);
                 if (retcode == 0) {
@@ -228,4 +224,4 @@ void AP_Networking_CAN::can_frame_callback(uint8_t bus, const AP_HAL::CANFrame &
     mcast_sockets[bus]->send((void*)&pkt, data_length+MCAST_HDR_LENGTH);
 }
 
-#endif // AP_NETWORKING_ENABLED
+#endif // AP_NETWORKING_ENABLED && AP_NETWORKING_CAN_MCAST_ENABLED

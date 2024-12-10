@@ -13,7 +13,6 @@ public:
         GUIDED=4,
         AUTO=10,
         INITIALISING=16
-        // Mode number 30 reserved for "offboard" for external/lua control.
     };
 
     Mode() {}

@@ -31,7 +31,7 @@ bool AP_Mission::start_command_do_aux_function(const AP_Mission::Mission_Command
     default:
         return false;
     }
-    rc().run_aux_function(function, pos, RC_Channel::AuxFuncTrigger::Source::MISSION, cmd.index);
+    rc().run_aux_function(function, pos, RC_Channel::AuxFuncTriggerSource::MISSION);
     return true;
 }
 #endif  // AP_RC_CHANNEL_ENABLED

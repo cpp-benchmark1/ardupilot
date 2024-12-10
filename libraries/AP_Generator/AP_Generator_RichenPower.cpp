@@ -13,8 +13,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma GCC optimize("Os")
-
 #include "AP_Generator_config.h"
 
 #if AP_GENERATOR_RICHENPOWER_ENABLED

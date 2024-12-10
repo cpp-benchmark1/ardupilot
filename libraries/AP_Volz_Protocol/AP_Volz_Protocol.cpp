@@ -62,15 +62,12 @@ void AP_Volz_Protocol::init(void)
         return;
     }
 
-    AP_SerialManager &serial_manager = AP::serialmanager();
+    const AP_SerialManager &serial_manager = AP::serialmanager();
     port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Volz,0);
     if (port == nullptr) {
         // No port configured
         return;
     }
-
-    // update baud param in case user looks at it
-    serial_manager.set_and_default_baud(AP_SerialManager::SerialProtocol_Volz, 0, 115200);
 
     // Create thread to handle output
     if (!hal.scheduler->thread_create(FUNCTOR_BIND_MEMBER(&AP_Volz_Protocol::loop, void),

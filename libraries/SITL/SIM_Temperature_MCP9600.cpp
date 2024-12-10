@@ -1,7 +1,3 @@
-#include "SIM_config.h"
-
-#if AP_SIM_TEMPERATURE_MCP9600_ENABLED
-
 #include "SIM_Temperature_MCP9600.h"
 
 using namespace SITL;
@@ -69,5 +65,3 @@ int MCP9600::rdwr(I2C::i2c_rdwr_ioctl_data *&data)
 {
     return I2CRegisters_ConfigurableLength::rdwr(data);
 }
-
-#endif  // AP_SIM_TEMPERATURE_MCP9600_ENABLED

@@ -1,7 +1,3 @@
-#include "SIM_config.h"
-
-#if AP_SIM_TEMPERATURE_TSYS01_ENABLED
-
 #include "SIM_Temperature_TSYS01.h"
 
 #include <stdio.h>
@@ -200,5 +196,3 @@ float SITL::TSYS01::get_sim_temperature() const
     // To Do: Add a sensor board temperature offset parameter
     return AP_Baro::get_temperatureC_for_alt_amsl(sim_alt) + 25;
 }
-
-#endif  // AP_SIM_TEMPERATURE_TSYS01_ENABLED

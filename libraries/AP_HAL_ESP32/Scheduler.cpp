@@ -140,9 +140,6 @@ void IRAM_ATTR Scheduler::thread_create_trampoline(void *ctx)
     AP_HAL::MemberProc *t = (AP_HAL::MemberProc *)ctx;
     (*t)();
     free(t);
-
-    // delete the calling task
-    vTaskDelete(NULL);
 }
 
 /*

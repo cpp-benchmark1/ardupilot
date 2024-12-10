@@ -48,7 +48,6 @@ define AP_WINCH_ENABLED 0
 define AP_CAMERA_BACKEND_DEFAULT_ENABLED 0
 define AP_CAMERA_RELAY_ENABLED AP_CAMERA_ENABLED
 define AP_CAMERA_SERVO_ENABLED AP_CAMERA_ENABLED
-define AP_CAMERA_RUNCAM_ENABLED AP_CAMERA_ENABLED
 
 # no SLCAN on these boards (use can-over-mavlink if required)
 define AP_CAN_SLCAN_ENABLED 0
@@ -137,7 +136,3 @@ define AC_PAYLOAD_PLACE_ENABLED 0
 # disable extra camera messages
 define AP_CAMERA_INFO_FROM_SCRIPT_ENABLED 0
 define AP_MAVLINK_MSG_VIDEO_STREAM_INFORMATION_ENABLED 0
-
-
-# no servo feedback on minimized boards:
-define AP_SERVO_TELEM_ENABLED 0

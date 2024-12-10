@@ -18,7 +18,6 @@ public:
         VELOCITY =      2,  // velocity mode
         LOITER =        3,  // loiter mode (position hold)
         RTL =           4,  // rtl
-        // Mode number 30 reserved for "offboard" for external/lua control.
     };
 
     // constructor

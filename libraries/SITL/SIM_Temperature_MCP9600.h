@@ -1,7 +1,3 @@
-#include "SIM_config.h"
-
-#if AP_SIM_TEMPERATURE_MCP9600_ENABLED
-
 #include "SIM_I2CDevice.h"
 
 /*
@@ -40,5 +36,3 @@ private:
 };
 
 } // namespace SITL
-
-#endif  // AP_SIM_TEMPERATURE_MCP9600_ENABLED

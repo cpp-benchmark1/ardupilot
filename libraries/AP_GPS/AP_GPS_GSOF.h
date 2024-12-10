@@ -73,7 +73,6 @@ private:
     uint8_t packetcount;
     uint32_t gsofmsg_time;
     uint8_t gsofmsgreq_index;
-    uint16_t next_req_gsof;
-    AP_GSOF::MsgTypes requested_msgs;
+    const uint8_t gsofmsgreq[5] = {1,2,8,9,12};
 };
 #endif

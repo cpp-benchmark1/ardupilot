@@ -1,9 +1,5 @@
 #pragma once
 
-#include "SIM_config.h"
-
-#if AP_SIM_MAXSONAR_I2C_XL_ENABLED
-
 #include "SIM_I2CDevice.h"
 
 namespace SITL {
@@ -33,5 +29,3 @@ private:
 };
 
 } // namespace SITL
-
-#endif  // AP_SIM_MAXSONAR_I2C_XL_ENABLED
