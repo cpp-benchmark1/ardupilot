@@ -30,7 +30,7 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        make waf
+        git submodule update --init
         ./waf configure --board=linux
         ./waf
     - name: Free disk space
