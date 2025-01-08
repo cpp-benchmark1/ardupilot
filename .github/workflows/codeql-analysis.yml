@@ -47,13 +47,13 @@ jobs:
             libfreetype6 libfreetype6-dev libfontconfig1 libfontconfig1-dev \
             snmp pollinate libpq-dev postgresql-client powershell ruby-full \
             sphinxsearch subversion mongodb-org azure-cli microsoft-edge-stable \
-            -y -f >/dev/null 2>&1
-          sudo apt-get purge google-cloud-sdk -f -y >/dev/null 2>&1
-          sudo apt-get purge '~n ^mysql' -f -y >/dev/null 2>&1
-          sudo apt-get purge '~n ^php' -f -y >/dev/null 2>&1
-          sudo apt-get purge '~n ^dotnet' -f -y >/dev/null 2>&1
-          sudo apt-get autoremove -y >/dev/null 2>&1
-          sudo apt-get autoclean -y >/dev/null 2>&1
+            -y -f || true
+          sudo apt-get purge google-cloud-sdk -f -y  || true
+          sudo apt-get purge '~n ^mysql' -f -y  || true
+          sudo apt-get purge '~n ^php' -f -y  || true
+          sudo apt-get purge '~n ^dotnet' -f -y  || true
+          sudo apt-get autoremove -y || true
+          sudo apt-get autoclean -y || true
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
