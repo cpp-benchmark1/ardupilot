@@ -30,7 +30,6 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        git submodule update --init --recursive --remote
         ./waf configure --board=linux
         ./waf
     - name: Free disk space
