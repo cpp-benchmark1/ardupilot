@@ -30,7 +30,7 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        make linux-configure
+        ./waf configure
         ./waf bin
     - name: Free disk space
       run: |
