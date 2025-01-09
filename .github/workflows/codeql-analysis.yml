@@ -34,7 +34,7 @@ jobs:
       run: |
         python -m pip install empy==3.3.4 future
         ./waf configure
-        ./waf examples
+        CFLAGS=-Wno-error ./waf
     - name: Free disk space
       run: |
           sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
