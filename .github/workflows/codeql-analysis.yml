@@ -32,7 +32,7 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        python -m pip install empy==3.3.4
+        python -m pip install empy==3.3.4 future
         ./waf configure
         ./waf bin
     - name: Free disk space
