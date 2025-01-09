@@ -30,8 +30,8 @@ jobs:
     - if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        ./waf configure --board=linux
-        ./waf
+        make linux-configure
+        ./waf bin
     - name: Free disk space
       run: |
           sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
