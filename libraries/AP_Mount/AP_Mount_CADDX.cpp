@@ -1,5 +1,6 @@
 #include "AP_Mount_config.h"
 
+#ifdef HAL_MOUNT_CADDX_ENABLED
 #if HAL_MOUNT_CADDX_ENABLED
 
 #include "AP_Mount_CADDX.h"
@@ -168,5 +169,5 @@ void AP_Mount_CADDX::send_target_angles(const MountTarget& angle_target_rad)
     // store time of send
     _last_send_ms = AP_HAL::millis();
 }
-
+#endif // HAL_MOUNT_CADDX_ENABLED
 #endif // HAL_MOUNT_CADDX_ENABLED
