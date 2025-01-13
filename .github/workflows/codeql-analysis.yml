@@ -36,7 +36,8 @@ jobs:
         Tools/environment_install/install-prereqs-ubuntu.sh -y
         . ~/.profile
         ./waf configure
-        CFLAGS=-Wno-error ./waf
+        ./waf clean
+        CFLAGS="-Wno-error -fno-common" ./waf -v
     - name: Free disk space
       run: |
           sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
